@@ -673,7 +673,9 @@ const SessionRow = memo(function SessionRow({
           anchor={placedPreview}
           open={previewIntent.shown !== null}
           side="inline-end"
-          className={`acpmux-session-preview acpmux-session-preview-${previewVariant}`}
+          // The default card is a glass hover card (desktop.css .ui-card.ui-glass); the Debug variants
+          // keep their own fills.
+          className={`acpmux-session-preview acpmux-session-preview-${previewVariant}${previewVariant === "card" ? " ui-glass" : ""}`}
           instant={previewIntent.instant}
           onPointerEnter={cancelPreviewLeave}
           onPointerLeave={leavePreviewCard}

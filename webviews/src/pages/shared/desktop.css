@@ -143,14 +143,28 @@ select {
   transition: none;
 }
 
-/* A hover card (ui/Tooltip.tsx AnchoredCard, .ui-tooltip.ui-card: a link card) keeps the solid popup
-   surface and its own look; a toolbar hint (.ui-hint) is a tooltip. */
+/* A hover card (ui/Tooltip.tsx AnchoredCard, .ui-tooltip.ui-card) with no glass (a link card) keeps
+   the solid popup surface and its own look; a toolbar hint (.ui-hint) is a tooltip. */
 .ui-card {
   border-width: 1px;
   background: var(--surface-popup);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: var(--elevation-2);
+}
+
+/* A glass hover card (.ui-card.ui-glass: a session's hover card, a sidebar row's preview, a New Tab
+   chat's card; plans/cmux-next/glass-lens-DESIGN.md "Surfaces"): its fill, frost and rim are the
+   liquid glass's (ui/glass/glass.css, loaded after this sheet), with the hover card elevation. The
+   border keeps its width, so the card's size never changes, but is clear: the glass rim draws the
+   edge. Plain glass keeps the solid popup surface the card had before the lens. */
+.ui-card.ui-glass {
+  --glass-elevation: var(--elevation-2);
+  border-color: transparent;
+}
+:root[data-glass="plain"] .ui-card.ui-glass {
+  --glass-tint: var(--surface-popup);
+  --glass-backdrop: none;
 }
 
 .ui-hint {

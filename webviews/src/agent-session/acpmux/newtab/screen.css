@@ -771,8 +771,9 @@ button.nt-widget-row:hover{background:color-mix(in srgb,var(--agent-text) 6%,tra
   flex: none;
   width: 100%;
 }
-/* A chat row's hover card (Leo 2026-10-19): a solid floating card offset from the row (Tooltip's
-   gap), clamped to the window by the positioner, with the tooltip's short fade. */
+/* A chat row's hover card (Leo 2026-10-19): a floating glass hover card (desktop.css
+   .ui-card.ui-glass) offset from the row (Tooltip's gap), clamped to the window by the positioner,
+   with the tooltip's short fade. */
 .nt-hovercard {
   max-width: min(320px, calc(100vw - 24px));
   padding: 8px 10px;
