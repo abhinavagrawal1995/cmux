@@ -424,10 +424,30 @@ fn turn_tls_roam_repeats() {
         .build()
         .unwrap();
     log_here(&log);
+    // Udp: RcvbufErrors and SndbufErrors (Linux /proc/net/snmp).
+    fn udp_drops() -> (u64, u64) {
+        let snmp = std::fs::read_to_string("/proc/net/snmp").unwrap_or_default();
+        let mut udp = snmp.lines().filter(|line| line.starts_with("Udp:"));
+        let (Some(names), Some(values)) = (udp.next(), udp.next()) else { return (0, 0) };
+        let field = |name: &str| {
+            let at = names.split_whitespace().position(|n| n == name)?;
+            values.split_whitespace().nth(at)?.parse::<u64>().ok()
+        };
+        (field("RcvbufErrors").unwrap_or(0), field("SndbufErrors").unwrap_or(0))
+    }
+    eprintln!("rmem_max {:?}", std::fs::read_to_string("/proc/sys/net/core/rmem_max"));
     let mut failed = Vec::new();
     for round in 0..60 {
         log.0.lock().unwrap().clear();
+        let before = udp_drops();
         let run = runtime.block_on(async { tokio::spawn(turn_tls_roam_round()).await });
+        let after = udp_drops();
+        eprintln!(
+            "round {round}: {} rcvbuf {} sndbuf {}",
+            if run.is_ok() { "ok" } else { "FAILED" },
+            after.0 - before.0,
+            after.1 - before.1
+        );
         if run.is_err() {
             failed.push(round);
             let text = String::from_utf8_lossy(&log.0.lock().unwrap()).into_owned();
