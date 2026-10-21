@@ -80,6 +80,9 @@ export async function mountAgentPane(state: AgentPaneVariant, context: StageCont
     },
   };
   document.documentElement.dataset.cmuxWebviewKind = "acpmux-agent-session";
+  // Before the pane's scripts run, as AgentPaneTunables.documentScript sets them in the app.
+  for (const [name, value] of Object.entries(state.documentAttributes ?? {}))
+    document.documentElement.setAttribute(`data-${name}`, value);
   // The desktop layer first (the pane's main.tsx imports it): it inserts desktop.css and the liquid
   // glass (ui/glass/glass.css) on their own, and the pane's sheet, which holds them in the shipped
   // order ahead of the pane's own sheets, must come after so a surface's rules outrank `.ui-glass`
