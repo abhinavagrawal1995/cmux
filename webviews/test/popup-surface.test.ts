@@ -203,8 +203,9 @@ ${tooltips}`,
         ["the agent pane", pane],
       ] as const) {
         for (const [mode, root] of [
-          ["the lens", undefined],
-          ["Plain glass", 'data-glass="plain"'],
+          ["no still yet", undefined],
+          ["the lens", "data-glass-lens"],
+          ["Plain glass", 'data-glass="plain" data-glass-lens'],
         ] as const) {
           test(`under ${mode} every menu, popover and picker in ${where} is glass: translucent and frosted, never opaque`, async () => {
             const page = await open(browser, fixture, root);
