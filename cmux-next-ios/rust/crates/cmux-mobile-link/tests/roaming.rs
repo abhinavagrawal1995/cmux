@@ -366,6 +366,85 @@ async fn wireguard_roam_with_udp_blocked_takes_a_fresh_turn_tls_allocation() {
     }
 }
 
+// TEMPORARY: find the TURN-TLS roam race (diagnosis only).
+#[derive(Clone)]
+struct LogBuf(std::sync::Arc<std::sync::Mutex<Vec<u8>>>);
+
+impl std::io::Write for LogBuf {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        self.0.lock().unwrap().extend_from_slice(bytes);
+        Ok(bytes.len())
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+fn log_here(log: &LogBuf) {
+    use tracing_subscriber::util::SubscriberInitExt;
+    let log = log.clone();
+    let guard = tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::new("cmux_mobile_link=debug,cmux_transport=debug"))
+        .with_ansi(false)
+        .with_writer(move || log.clone())
+        .finish()
+        .set_default();
+    std::mem::forget(guard);
+}
+
+async fn turn_tls_roam_round() {
+    let turn = TestTurn::start().await;
+    let phone = DialOptions {
+        block_udp: true,
+        ice_servers: vec![turn.ice.clone()],
+        turn_tls_roots: Some(std::sync::Arc::clone(&turn.roots)),
+        ..options()
+    };
+    let run = stream_across_a_change(phone, options(), Some(Duration::ZERO), Duration::from_secs(3)).await;
+    let ok = run.before == LinkPath::TurnTls
+        && run.after == LinkPath::TurnTls
+        && run.mac_before == Some(LinkPath::TurnTls)
+        && run.mac_after == Some(LinkPath::TurnTls)
+        && run.stall < Duration::from_secs(1)
+        && turn.stream_connections() == 2
+        && ["roam_turn_tls_allocated", "roam_first_packet", "roam_turn"]
+            .iter()
+            .all(|m| names(&run).contains(m));
+    assert!(ok, "round failed: {run:?}; stream connections {}", turn.stream_connections());
+}
+
+#[test]
+fn turn_tls_roam_repeats() {
+    let log = LogBuf(std::sync::Arc::new(std::sync::Mutex::new(Vec::new())));
+    let thread_log = log.clone();
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(4)
+        .enable_all()
+        .on_thread_start(move || log_here(&thread_log))
+        .build()
+        .unwrap();
+    log_here(&log);
+    let mut failed = Vec::new();
+    for round in 0..60 {
+        log.0.lock().unwrap().clear();
+        let run = runtime.block_on(async { tokio::spawn(turn_tls_roam_round()).await });
+        if run.is_err() {
+            failed.push(round);
+            let text = String::from_utf8_lossy(&log.0.lock().unwrap()).into_owned();
+            let lines: Vec<&str> = text.lines().collect();
+            let tail = &lines[lines.len().saturating_sub(500)..];
+            eprintln!(
+                "==== round {round} failed; last {} of {} log lines:\n{}",
+                tail.len(),
+                lines.len(),
+                tail.join("\n")
+            );
+        }
+    }
+    eprintln!("turn-tls roam repeats: {} of 60 failed: {failed:?}", failed.len());
+    assert!(failed.is_empty(), "turn-tls roam repeats: {} of 60 failed: {failed:?}", failed.len());
+}
+
 /// Roaming across TURN transports: the phone rides TURN over UDP, then
 /// moves to a network that drops UDP. The roam's new allocation falls back
 /// to TLS and the stream goes on with every byte.
