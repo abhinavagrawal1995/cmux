@@ -28,6 +28,9 @@ struct AgentChatFromHomeTests {
             #expect(TopPages.show(page, services: services) != nil)
             #expect(window.state.page == page)
             #expect(window.focusedPane == nil, "a top page shows no pane")
+            let trace = DiagPageTrace(tag: "DIAG[\(action) \(origin) \(focus)]", window: window, services: services)
+            trace.track()
+            trace.log("start")
             let before = Set(services.daemon.store.workspaces.map(\.id))
             let invocation = ActionInvocation(origin: origin, focusRequested: origin != .user && focus)
             #expect(services.registry.perform(ActionID(rawValue: action), invocation: invocation))
@@ -38,7 +41,11 @@ struct AgentChatFromHomeTests {
             if origin == .user || focus {
                 try await PasswordManagerRouteTests.until { window.state.workspaceID == created.id && window.state.page == nil }
             } else {
+                trace.log("check, created \(created.id)")
                 #expect(window.state.page == page, "a script without focus switched the window")
+                try await Task.sleep(for: .seconds(3))
+                trace.log("after 3 s")
+                #expect(window.state.page == page, "DIAG: a script without focus switched the window within 3 s")
             }
         }
     }
@@ -66,6 +73,39 @@ struct AgentChatFromHomeTests {
             try await PasswordManagerRouteTests.until({ tabCount() > tabs }, report: { "\(tabCount()) tabs, was \(tabs)" })
             #expect(Set(services.daemon.store.workspaces.map(\.id)) == workspaces, "no workspace of its own")
             #expect(window.state.workspaceID == home.id && window.state.page == nil, "the window stays on Home")
+        }
+    }
+}
+
+/// DIAG (not for review): prints each change of the window's page or workspace, with the stack of the change.
+@MainActor final class DiagPageTrace {
+    let tag: String
+    let started = ContinuousClock.now
+    let window: WindowController
+    let services: AppServices
+
+    init(tag: String, window: WindowController, services: AppServices) {
+        self.tag = tag
+        self.window = window
+        self.services = services
+    }
+
+    func log(_ what: String) {
+        let workspaces = services.daemon.store.workspaces.map { "\($0.id):\($0.kind)" }
+        print("\(tag) +\(ContinuousClock.now - started) \(what): page \(String(describing: window.state.page)) ws \(String(describing: window.state.workspaceID)) windows \(services.windows.controllers.count) workspaces \(workspaces)")
+    }
+
+    func track() {
+        withObservationTracking({ _ = self.window.state.page; _ = self.window.state.workspaceID }, onChange: { [weak self] in
+            MainActor.assumeIsolated { self?.changed() }
+        })
+    }
+
+    private func changed() {
+        log("will change; stack:\n" + Thread.callStackSymbols.prefix(70).joined(separator: "\n"))
+        Task { @MainActor [weak self] in
+            self?.log("changed")
+            self?.track()
         }
     }
 }
