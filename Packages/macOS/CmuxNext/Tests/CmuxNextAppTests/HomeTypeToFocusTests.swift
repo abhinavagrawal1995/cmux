@@ -231,8 +231,11 @@ import Testing
             if next.acceptsFirstResponder, !(next is NSText || next is NSTextField), !next.isHiddenOrHasHiddenAncestor { list = next }
         }
         let holder = try #require(list, "the conversation list takes no keyboard")
+        print("DIAGLIST[\(container)] holder \(holder) superview \(String(describing: holder.superview)) subviews \(holder.subviews)")
         try #require(h.window.makeFirstResponder(holder))
+        print("DIAGLIST[\(container)] after make: \(String(describing: h.window.firstResponder))")
         #expect(h.content.landKeyboardInPrimaryInput(in: h.window))
+        print("DIAGLIST[\(container)] after land: \(String(describing: h.window.firstResponder))")
         #expect(h.window.firstResponder === holder, "a pane focus took the keyboard from the list")
         h.type("yo")
         #expect(h.box.string == "yo")
