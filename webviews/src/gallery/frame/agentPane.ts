@@ -80,6 +80,11 @@ export async function mountAgentPane(state: AgentPaneVariant, context: StageCont
     },
   };
   document.documentElement.dataset.cmuxWebviewKind = "acpmux-agent-session";
+  // The desktop layer first (the pane's main.tsx imports it): it inserts desktop.css and the liquid
+  // glass (ui/glass/glass.css) on their own, and the pane's sheet, which holds them in the shipped
+  // order ahead of the pane's own sheets, must come after so a surface's rules outrank `.ui-glass`
+  // as they do in the app.
+  await import("../../pages/shared/desktop");
   await import("virtual:cmux-gallery/agent-pane.css");
   await import("katex/dist/katex.min.css");
   await import("../../agent-session/acpmux/main");

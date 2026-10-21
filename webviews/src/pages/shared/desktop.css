@@ -357,14 +357,14 @@ input[type="submit"] {
   --layer-tooltip: 1000;
   --layer-debug: 2147483000;
   /* TRANSPARENCY. A translucent surface that carries text keeps at least this much of its fill
-     (color-mix(in srgb, <fill> var(--surface-text-min), transparent)); menus, popovers and
-     tooltips stay opaque. Reduce Transparency makes every translucent surface opaque. */
+     (color-mix(in srgb, <fill> var(--surface-text-min), transparent)); menus and popovers are the
+     liquid glass (ui/popupSurface.css). Reduce Transparency makes every translucent surface opaque. */
   --surface-text-min: 92%;
   --surface-blur: blur(20px) saturate(1.4);
-  /* The one solid surface of every menu, popover, picker and tooltip, never translucent and never
-     blurred, so text under a popup never shows through (Leo, 2026-10-12): the host's popup fill
-     (WebTheme.swift, the same color as native overlays' Palette.popupSurface), else the page
-     color lifted toward the text. */
+  /* The solid popup surface: a menu's, popover's and picker's fill under Plain glass and Reduce
+     Transparency (they are the liquid glass otherwise, ui/popupSurface.css), and what the tooltip
+     tint mixes from: the host's popup fill (WebTheme.swift, the same color as native overlays'
+     Palette.popupSurface), else the page color lifted toward the text. */
   --surface-popup: var(
     --cmux-popup-surface,
     color-mix(in srgb, var(--cmux-text, CanvasText) 14%, var(--cmux-surface-solid, Canvas))
