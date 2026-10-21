@@ -112,6 +112,7 @@ ${tooltips}
       "agent-session/acpmux/changes/changes.css",
       "agent-session/acpmux/composerControls.css",
       "agent-session/acpmux/composerLocation.css",
+      "agent-session/acpmux/composerStates.css",
       "agent-session/acpmux/modelPicker.css",
       "agent-session/acpmux/summary/summary.css",
       "agent-session/acpmux/header/header.css",
@@ -121,6 +122,7 @@ ${tooltips}
 <div class="ui-popup ui-glass acpmux-menu" id="cascade">Model</div>
 <div class="ui-popup ui-glass ui-popover acpmux-context-pop" id="context-pop">Context</div>
 <div class="ui-popup ui-glass acpmux-slash-menu" id="slash">/compact</div>
+<div class="acpmux-composer"><div class="ui-popup ui-glass acpmux-slash-menu acpmux-mention-menu" id="composer-menu">@file</div></div>
 <div class="ui-popup ui-glass ui-picker-popup acpmux-mp" id="model-picker">Models</div>
 <div class="acpmux-changes"><div class="acpmux-file-menu-list" id="file-menu">Open</div></div>
 </div>
@@ -137,6 +139,8 @@ ${tooltips}`,
       "cascade",
       "context-pop",
       "slash",
+      // The slash, mention and access menus open inside the composer: never its solid card tint.
+      "composer-menu",
       "model-picker",
       "popup",
       "context-menu",
@@ -150,6 +154,7 @@ ${tooltips}`,
       "cascade",
       "context-pop",
       "slash",
+      "composer-menu",
       "model-picker",
       "file-menu",
       "popup",

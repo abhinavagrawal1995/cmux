@@ -1,7 +1,7 @@
 /* A session reference's hover card (SessionHoverCard.tsx), as Claude desktop's and Codex's hover
    previews read (Leo, 2026-10-20): the shared glass hover card (.ui-card.ui-glass in desktop.css: the
-   liquid glass, never the grey of a user bubble, with the hover card elevation --elevation-2; the
-   solid popup surface under plain glass), a hairline of clear border under the glass rim and a 12px
+   liquid glass, never the grey of a user bubble, with the hover card elevation --elevation-2; glass
+   under plain glass too), a hairline of clear border under the glass rim and a 12px
    corner. Inside, 10px by 14px of
    padding and three steps: the title in the body step at emphasis (two lines at most), the status
    line (SessionStatusLine, styled in startedSessions.css), then the meta line, the folder and branch

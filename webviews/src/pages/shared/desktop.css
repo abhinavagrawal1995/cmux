@@ -362,9 +362,8 @@ input[type="submit"] {
      liquid glass (ui/popupSurface.css). Reduce Transparency makes every translucent surface opaque. */
   --surface-text-min: 92%;
   --surface-blur: blur(20px) saturate(1.4);
-  /* The solid popup surface: a menu's, popover's and picker's fill under Plain glass and Reduce
-     Transparency (they are the liquid glass otherwise, ui/popupSurface.css), and what the tooltip
-     tint mixes from: the host's popup fill (WebTheme.swift, the same color as native overlays'
+  /* The solid popup surface: a menu's, popover's and picker's fill under Reduce Transparency
+     (they are the liquid glass otherwise, ui/popupSurface.css), and what the tooltip tint mixes from: the host's popup fill (WebTheme.swift, the same color as native overlays'
      Palette.popupSurface), else the page color lifted toward the text. */
   --surface-popup: var(
     --cmux-popup-surface,

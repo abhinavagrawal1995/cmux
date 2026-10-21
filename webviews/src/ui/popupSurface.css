@@ -94,9 +94,9 @@
 /* Every popup is the liquid glass (.ui-glass, ui/glass/glass.css: Menu, Popover, ContextMenu,
    Combobox and the agent pane's own popups add the class) on the dropdown layer by default
    (webviews/src/ui/README.md, "Layers and transparency"), never opaque: the glass's tint and frost,
-   its rim with the popup's one hairline as its edge, and the shared popup drop. Plain glass is the
-   solid popup surface from before the lens (--surface-popup, pages/shared/desktop.css) under the
-   same hairline and drop; Reduce Transparency keeps it opaque. A feature's own surface class draws
+   its rim with the popup's one hairline as its edge, and the shared popup drop. Plain glass is
+   glass too, under the same hairline and drop; only Reduce Transparency makes it the solid popup
+   surface (--surface-popup, pages/shared/desktop.css). A feature's own surface class draws
    on these tokens and never paints its own fill or shadow. A host maps --ui-popup-fg to its ink
    (the agent pane: acpmux/styles.css), so a popup that names no surface (a nested submenu, a new
    menu) still gets the same look. */

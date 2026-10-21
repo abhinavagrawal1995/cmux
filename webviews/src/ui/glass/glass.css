@@ -103,6 +103,17 @@
   --glass-backdrop: blur(var(--glass-frost)) saturate(1.3);
 }
 
+/* A popup is glass of its own: it never inherits the tint of the surface it opens from (the
+   composer's solid card on an opaque window would make a slash or mention menu opaque). */
+.ui-popup.ui-glass {
+  --glass-tint: color-mix(in srgb, var(--glass-surface) 60%, transparent);
+  --glass-backdrop: var(--surface-blur);
+}
+:root[data-glass-lens]:not([data-glass="plain"]) .ui-popup.ui-glass {
+  --glass-tint: color-mix(in srgb, var(--glass-surface) 40%, transparent);
+  --glass-backdrop: blur(var(--glass-frost)) saturate(1.3);
+}
+
 :root[data-borders="none"] {
   --glass-edge: transparent;
   --glass-rim: 0;

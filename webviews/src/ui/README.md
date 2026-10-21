@@ -100,10 +100,10 @@ Rules:
 - Menus, popovers, pickers and context menus are glass, never opaque: the popup adds `.ui-glass`
   (`Menu`, `Popover`, `ContextMenu` and `Combobox` do) and paints no fill or shadow of its own;
   `ui/popupSurface.css` gives it the popup's one hairline as the glass edge and the popup drop
-  (`--ui-popup-drop`). Under Plain glass it is the popup surface from before the lens,
-  `var(--surface-popup)` (desktop.css: the host's `--cmux-popup-surface`, the native overlays'
-  `Palette.popupSurface`), unblurred; under Reduce Transparency the same surface, opaque
-  (`--glass-opaque`). Tooltips keep the tooltip surface (`--tooltip-*`). Any other translucent
+  (`--ui-popup-drop`). Plain glass is glass too (the surface at 60% under the frost); only Reduce
+  Transparency makes it the popup surface `var(--surface-popup)` (desktop.css: the host's
+  `--cmux-popup-surface`, the native overlays' `Palette.popupSurface`), opaque (`--glass-opaque`).
+  A popup never inherits the tint of the surface it opens from (`.ui-popup.ui-glass`, glass.css). Tooltips keep the tooltip surface (`--tooltip-*`). Any other translucent
   surface that carries text keeps at least `--surface-text-min` of its fill:
   `color-mix(in srgb, <fill> var(--surface-text-min), transparent)`.
 - A blur uses `backdrop-filter: var(--surface-blur)`, or the file has its own
