@@ -162,11 +162,12 @@ final class SidebarRows {
     func outcome(_ edit: SidebarPendingEdits.Token?, resync: @escaping @MainActor () -> Void)
         -> (failed: @MainActor () -> Void, applied: (@MainActor () -> Void)?) {
         let failed: @MainActor () -> Void = { [weak self] in
+            print("newpos-diag edit FAILED")
             self?.settle(edit)
             resync()
         }
         guard let edit else { return (failed, nil) }
-        return (failed, { [weak self] in self?.settle(edit) })
+        return (failed, { [weak self] in print("newpos-diag edit applied"); self?.settle(edit) })
     }
 
     /// Sends one personal-state command to `home` for `edit`.

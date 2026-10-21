@@ -79,7 +79,11 @@ extension SidebarBridge {
                        edit: SidebarPendingEdits.Token? = nil) {
         let group = position.group.map { WorkspaceGroupID(rawValue: $0.rawValue) }
         let (failed, applied) = rows.outcome(edit, resync: { [weak self] in self?.resync() })
-        guard let plan = PersonalSidebarPlanner(machines: services.machines).dropPlan(ids, at: position, in: sections) else { return failed() }
+        guard let plan = PersonalSidebarPlanner(machines: services.machines).dropPlan(ids, at: position, in: sections) else {
+            print("newpos-diag placePersonal NO PLAN ids=\(ids.map { $0.rawValue.prefix(8) })")
+            return failed()
+        }
+        print("newpos-diag placePersonal plan steps=\(plan.steps.map { "\($0.workspace.key.rawValue.prefix(8))@\($0.index)" })")
         let regroup = statePersonal ? plan.regroup : []
         // Only the dropped workspaces leave their group; a group they empty goes (cx-rcby).
         let moving = plan.steps.filter(\.moves).map(\.workspace), life = self.life

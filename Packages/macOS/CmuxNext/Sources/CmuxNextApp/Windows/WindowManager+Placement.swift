@@ -33,7 +33,9 @@ extension WindowManager {
             let sections = SidebarRowSection.withoutPlaceholders(bridge.model.sections)
             let section = SectionID.machine(MachineID(machine))
             let slot = pending.slot ?? pending.byDefault?.slot(for: id, section: section, in: sections, home: NewWorkspacePlacements.home(services.machines))
-            if let position = slot?.position(moving: [id], section: section, in: sections) {
+            let position = slot?.position(moving: [id], section: section, in: sections)
+            print("newpos-diag apply id=\(id.prefix(8)) slot=\(String(describing: slot)) position=\(String(describing: position)) rows=\(sections.flatMap(\.workspaces).map { $0.id.rawValue.prefix(8) }) doc=\(SidebarDocWiring.isActive)")
+            if let position {
                 bridge.place([SidebarWorkspaceID(id)], at: position, in: sections)
             }
             ActionRunScope.carrying(pending.run) { pending.then?(id, bridge) }
