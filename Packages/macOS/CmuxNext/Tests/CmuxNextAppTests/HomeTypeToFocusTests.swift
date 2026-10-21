@@ -83,6 +83,7 @@ import Testing
     /// Home in `container`, beside another pane, in a window; once its message box exists.
     private static func harness(_ container: Container) async throws -> Harness {
         _ = NSApplication.shared
+        DiagMainStallSampler.shared.startOnce()
         let services = AppServices(environment: AppEnvironment.current([:]))
         let conversation = ConversationID("conv_type_to_focus")
         let content: TabContent
@@ -278,5 +279,53 @@ import Testing
         #expect(!KeyRouter.isDeadKey(try key("e", "e")))
         #expect(!KeyRouter.isDeadKey(try key("", "e", .command)))
         #expect(!KeyRouter.isDeadKey(try key("", String(Character(UnicodeScalar(UInt32(NSUpArrowFunctionKey))!)))))
+    }
+}
+
+/// DIAG (not for review): samples this process once when the main thread stops answering for 3 s.
+final class DiagMainStallSampler: @unchecked Sendable {
+    static let shared = DiagMainStallSampler()
+    private let lock = NSLock()
+    private var beat = Date()
+    private var started = false
+    private var sampled = 0
+    private var timers: [DispatchSourceTimer] = []
+
+    func startOnce() {
+        lock.lock(); defer { lock.unlock() }
+        guard !started else { return }
+        started = true
+        let main = DispatchSource.makeTimerSource(queue: .main)
+        main.schedule(deadline: .now(), repeating: .milliseconds(200))
+        main.setEventHandler { [weak self] in self?.touch() }
+        main.resume()
+        let watch = DispatchSource.makeTimerSource(queue: .global())
+        watch.schedule(deadline: .now() + 1, repeating: .milliseconds(500))
+        watch.setEventHandler { [weak self] in self?.check() }
+        watch.resume()
+        timers = [main, watch]
+    }
+
+    private func touch() { lock.lock(); beat = Date(); lock.unlock() }
+
+    private func check() {
+        lock.lock()
+        let stalled = Date().timeIntervalSince(beat)
+        let take = stalled > 3 && sampled < 2
+        if take { sampled += 1; beat = Date().addingTimeInterval(30) }
+        lock.unlock()
+        guard take else { return }
+        let pid = ProcessInfo.processInfo.processIdentifier
+        let file = "/tmp/diag-stall-\(pid)-\(Int(Date().timeIntervalSince1970)).txt"
+        print("DIAGSTALL main thread stalled \(stalled) s; sampling \(pid) into \(file)")
+        let sample = Process()
+        sample.executableURL = URL(fileURLWithPath: "/usr/bin/sample")
+        sample.arguments = [String(pid), "2", "-file", file]
+        sample.terminationHandler = { _ in
+            let text = (try? String(contentsOfFile: file, encoding: .utf8)) ?? "no sample"
+            let lines = text.split(separator: "\n", omittingEmptySubsequences: false)
+            print("DIAGSTALL sample (\(lines.count) lines):\n" + lines.prefix(400).joined(separator: "\n"))
+        }
+        do { try sample.run() } catch { print("DIAGSTALL sample failed: \(error)") }
     }
 }
