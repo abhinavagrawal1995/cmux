@@ -27,7 +27,7 @@ final class BrowserDownloadsPopup {
 
     private let popup = NativePopupHost(panel: NativePopupPanel(identifier: "cmux.browser.downloads"))
     private let model = BrowserDownloadsPopupModel()
-    private var content: FirstMouseHostingView<BrowserDownloadsPopupView>?
+    private var content: DownloadsPopupHostingView?
     private weak var anchor: NSView?
     /// The toolbar the popup opened from, which draws its button pressed while it is open.
     private weak var buttons: BrowserToolbarButtonsView?
@@ -119,8 +119,8 @@ final class BrowserDownloadsPopup {
         return true
     }
 
-    private func makeContent() -> FirstMouseHostingView<BrowserDownloadsPopupView> {
-        let content = FirstMouseHostingView(rootView: BrowserDownloadsPopupView(model: model))
+    private func makeContent() -> DownloadsPopupHostingView {
+        let content = DownloadsPopupHostingView(rootView: BrowserDownloadsPopupView(model: model))
         let card = Glass.makeOverlayPanel(content: content, cornerRadius: PopupStyle.standard.cornerRadius)
         popup.panel.adoptPopupStyle(card: card)
         self.content = content
@@ -455,7 +455,9 @@ final class BrowserDownloadRowEventView: NSView, NSDraggingSource {
 }
 
 /// The popup's content: a click on a control (a footer button) acts on the
-/// first click, also while the popup opened without the keys.
-final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+/// first click, also while the popup opened without the keys. Not generic: the
+/// Swift 6.3.3 Release optimizer crashed on the generic subclass's deinit
+/// (EarlyPerfInliner on `FirstMouseHostingViewCfD`, check-release-compile).
+final class DownloadsPopupHostingView: NSHostingView<BrowserDownloadsPopupView> {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
