@@ -110,11 +110,8 @@
 .ui-popup {
   --glass-elevation: var(--ui-popup-drop);
   --glass-edge: var(--ui-popup-edge, color-mix(in srgb, currentColor 12%, transparent));
+  /* glass-opaque-allow: the Reduce Transparency fill only (glass.css applies it under that setting) */
   --glass-opaque: var(--surface-popup);
-}
-:root[data-glass="plain"] .ui-popup {
-  --glass-tint: var(--surface-popup);
-  --glass-backdrop: none;
 }
 
 /* The shipped agent pane loads this shared surface sheet without ui.css. Keep modal layers here

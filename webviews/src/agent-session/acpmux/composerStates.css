@@ -67,6 +67,7 @@
   --glass-backdrop: blur(18px) saturate(1.08);
 }
 .acpmux-composer {
+  /* glass-opaque-allow: the Reduce Transparency fill only (glass.css applies it under that setting) */
   --glass-opaque: var(--acpmux-composer-solid);
 }
 :root[data-cmux-see-through]:not([data-glass="plain"]) .acpmux-shell {
@@ -97,12 +98,15 @@
    bends nothing (--glass-join, ui/glass/lens.ts). By default the queue stands on the strip or the
    card; under the tray it tucks under the card, which draws its whole rim over it. */
 :root:not([data-top-strip]) .acpmux-composer:has(> .acpmux-composer-strip, > .acpmux-composer-queue) > .acpmux-composer-box {
+  /* glass-opaque-allow: a keyword (top, bottom, both) the lens reads, not a color */
   --glass-join: top;
 }
 :root:is(:not([data-top-strip]), [data-top-strip="tray"]) .acpmux-composer > .acpmux-composer-queue {
+  /* glass-opaque-allow: a keyword (top, bottom, both) the lens reads, not a color */
   --glass-join: bottom;
 }
 :root:is(:not([data-top-strip]), [data-top-strip="tray"]) .acpmux-composer > .acpmux-queue-foldbar {
+  /* glass-opaque-allow: a keyword (top, bottom, both) the lens reads, not a color */
   --glass-join: both;
 }
 /* The plain top strip draws the queue as bare text, with no fill: no glass under it either. */

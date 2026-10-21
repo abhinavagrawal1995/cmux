@@ -119,12 +119,14 @@
    Transparency makes it the same grey, opaque. */
 .cv-user__bubble {
   --glass-tint: var(--cv-bubble);
+  /* glass-opaque-allow: the Reduce Transparency fill only (glass.css applies it under that setting) */
   --glass-opaque: color-mix(in srgb, var(--cv-fg) 5%, var(--glass-surface));
   --glass-edge: var(--acpmux-composer-edge, transparent);
   --glass-backdrop: none;
 }
 .acpmux-shell .cv-user__bubble {
   --glass-tint: color-mix(in srgb, var(--agent-text) 12%, transparent);
+  /* glass-opaque-allow: the Reduce Transparency fill only (glass.css applies it under that setting) */
   --glass-opaque: color-mix(in srgb, var(--agent-text) 12%, var(--glass-surface));
 }
 

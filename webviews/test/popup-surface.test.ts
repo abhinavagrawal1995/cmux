@@ -197,17 +197,22 @@ ${tooltips}`,
         ["pages", pages],
         ["the agent pane", pane],
       ] as const) {
-        test(`every menu, popover and picker in ${where} is glass: translucent and frosted, never opaque`, async () => {
-          const page = await open(browser, fixture);
-          const seen: Record<string, { translucent: boolean; blurred: boolean }> = {};
-          for (const id of fixture.glass) {
-            const { background, blurred } = await material(page, id);
-            seen[id] = { translucent: alpha(background) < 1, blurred };
-          }
-          const want = Object.fromEntries(fixture.glass.map((id) => [id, { translucent: true, blurred: true }]));
-          expect(seen).toEqual(want);
-          await page.close();
-        });
+        for (const [mode, root] of [
+          ["the lens", undefined],
+          ["Plain glass", 'data-glass="plain"'],
+        ] as const) {
+          test(`under ${mode} every menu, popover and picker in ${where} is glass: translucent and frosted, never opaque`, async () => {
+            const page = await open(browser, fixture, root);
+            const seen: Record<string, { translucent: boolean; blurred: boolean }> = {};
+            for (const id of fixture.glass) {
+              const { background, blurred } = await material(page, id);
+              seen[id] = { translucent: alpha(background) < 1, blurred };
+            }
+            const want = Object.fromEntries(fixture.glass.map((id) => [id, { translucent: true, blurred: true }]));
+            expect(seen).toEqual(want);
+            await page.close();
+          });
+        }
 
         test(`the other floating surfaces in ${where} keep the opaque popup surface, unblurred`, async () => {
           const page = await open(browser, fixture);
@@ -218,19 +223,15 @@ ${tooltips}`,
           await page.close();
         });
 
-        for (const [mode, root] of [
-          ["Plain glass", 'data-glass="plain"'],
-          ["Reduce Transparency", "data-reduce-transparency"],
-        ] as const) {
-          test(`under ${mode} every menu, popover and tooltip in ${where} is the opaque popup surface, unblurred`, async () => {
-            const page = await open(browser, fixture, root);
-            const seen: Record<string, { background: string; blurred: boolean }> = {};
-            for (const id of fixture.surfaces) seen[id] = await material(page, id);
-            const want = Object.fromEntries(fixture.surfaces.map((id) => [id, { background: POPUP, blurred: false }]));
-            expect(seen).toEqual(want);
-            await page.close();
-          });
-        }
+        // Only Reduce Transparency asks for opaque: Plain glass is still glass (Leo: never opaque).
+        test(`under Reduce Transparency every menu, popover and tooltip in ${where} is the opaque popup surface, unblurred`, async () => {
+          const page = await open(browser, fixture, "data-reduce-transparency");
+          const seen: Record<string, { background: string; blurred: boolean }> = {};
+          for (const id of fixture.surfaces) seen[id] = await material(page, id);
+          const want = Object.fromEntries(fixture.surfaces.map((id) => [id, { background: POPUP, blurred: false }]));
+          expect(seen).toEqual(want);
+          await page.close();
+        });
       }
 
       // Leo 10-13 (coherence pass): one elevation for every menu and popover. The New Tab

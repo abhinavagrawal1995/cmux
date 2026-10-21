@@ -157,14 +157,10 @@ select {
    chat's card; plans/cmux-next/glass-lens-DESIGN.md "Surfaces"): its fill, frost and rim are the
    liquid glass's (ui/glass/glass.css, loaded after this sheet), with the hover card elevation. The
    border keeps its width, so the card's size never changes, but is clear: the glass rim draws the
-   edge. Plain glass keeps the solid popup surface the card had before the lens. */
+   edge. Plain glass frosts it like every other glass: never the solid popup surface. */
 .ui-card.ui-glass {
   --glass-elevation: var(--elevation-2);
   border-color: transparent;
-}
-:root[data-glass="plain"] .ui-card.ui-glass {
-  --glass-tint: var(--surface-popup);
-  --glass-backdrop: none;
 }
 
 .ui-hint {

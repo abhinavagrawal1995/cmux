@@ -146,22 +146,6 @@ await requireBrowserLane("session-hover-card-surface.test.ts", async () => {
   }
   const distance = (a: number[], b: number[]) => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!);
 
-  /** The popup surface's color here, painted on a probe beside the card. */
-  async function popupSurface(page: Page) {
-    await page.evaluate(() => {
-      const probe = document.createElement("div");
-      probe.id = "popup-probe";
-      probe.className = "ui-positioner";
-      probe.style.cssText =
-        "position:fixed;left:680px;top:360px;width:30px;height:30px;background:var(--surface-popup)";
-      document.querySelector(".acpmux-shell")!.append(probe);
-    });
-    const pixel = await pixels(page);
-    const color = pixel(695, 375);
-    await page.evaluate(() => document.getElementById("popup-probe")?.remove());
-    return color;
-  }
-
   for (const scheme of ["light", "dark"] as const) {
     describe(`${scheme}`, () => {
       test("the card is glass, and does not read as the user bubble", async () => {
@@ -177,15 +161,13 @@ await requireBrowserLane("session-hover-card-surface.test.ts", async () => {
         expect(distance(fill, bubble)).toBeGreaterThanOrEqual(12);
       });
 
-      test("under plain glass the card is the popup surface it was before the lens", async () => {
+      test("under plain glass the card is still glass: the glass tint, never the solid popup surface", async () => {
         const page = await open(scheme);
         await page.evaluate(() => document.documentElement.setAttribute("data-glass", "plain"));
         const m = await page.evaluate(measure);
-        const pixel = await pixels(page);
-        const fill = pixel(m.card.right - 14, m.card.top + 4);
-        const surface = await popupSurface(page);
         await page.close();
-        expect(distance(fill, surface)).toBeLessThanOrEqual(3);
+        expect(m.glass).toBe(true);
+        expect(m.background).toBe(m.tint);
       });
 
       test("the glass rim over a clear hairline border, and the hover card elevation", async () => {
